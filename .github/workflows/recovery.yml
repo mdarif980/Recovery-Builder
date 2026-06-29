@@ -75,7 +75,7 @@ jobs:
 
           export ALLOW_MISSING_DEPENDENCIES=true
 
-          lunch twrp_TECNO-KH6-eng
+          lunch omni_TECNO-KH6-eng
 
           mka recoveryimage
 
