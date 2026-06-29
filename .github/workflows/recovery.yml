@@ -19,7 +19,7 @@ env:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
 
@@ -75,7 +75,7 @@ jobs:
 
           export ALLOW_MISSING_DEPENDENCIES=true
 
-          lunch omni_TECNO-KH6-eng
+          lunch twrp_TECNO-KH6-eng
 
           mka recoveryimage
 
@@ -84,5 +84,5 @@ jobs:
 
         with:
           name: TWRP-TECNO-KH6
-          path: |
-            work/out/target/product/**/recovery.img
+          path: 
+             work/out/target/product/TECNO-KH6/recovery.img
