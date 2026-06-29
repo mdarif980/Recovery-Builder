@@ -1,89 +1,88 @@
 name: Building recovery
 
 on:
-workflow_dispatch:
+  workflow_dispatch:
 
 env:
-MANIFEST: "https://github.com/minimal-manifest-twrp/platform_manifest_twrp_aosp"
-BRANCH: "twrp-12.1"
+  MANIFEST: "https://github.com/minimal-manifest-twrp/platform_manifest_twrp_aosp"
+  BRANCH: "twrp-12.1"
 
-DEVICE: "TECNO-KH6"
+  DEVICE: "TECNO-KH6"
 
-DT_LINK: "https://github.com/twrpdtgen/android_device_tecno_TECNO-KH6"
+  DT_LINK: "https://github.com/twrpdtgen/android_device_tecno_TECNO-KH6"
 
-DT_PATH: "device/tecno/TECNO-KH6"
+  DT_PATH: "device/tecno/TECNO-KH6"
 
-TARGET: "recoveryimage"
+  TARGET: "recoveryimage"
 
-TZ: "Asia/Dhaka"
+  TZ: "Asia/Dhaka"
 
 jobs:
-build:
-runs-on: ubuntu-latest
+  build:
+    runs-on: ubuntu-latest
 
-steps:
+    steps:
 
-  - name: Checkout
-    uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-  - name: Initializing environment
-    run: |
-      sudo apt-get update
+      - name: Initializing environment
+        run: |
+          sudo apt-get update
 
-      sudo apt-get install -y \
-      bc \
-      build-essential \
-      zip \
-      curl \
-      git \
-      python3 \
-      wget
+          sudo apt-get install -y \
+          bc \
+          build-essential \
+          zip \
+          curl \
+          git \
+          python3 \
+          wget
 
-      sudo curl --create-dirs -L \
-      -o /usr/local/bin/repo \
-      https://storage.googleapis.com/git-repo-downloads/repo
+          sudo curl --create-dirs -L \
+          -o /usr/local/bin/repo \
+          https://storage.googleapis.com/git-repo-downloads/repo
 
-      sudo chmod a+rx /usr/local/bin/repo
+          sudo chmod a+rx /usr/local/bin/repo
 
-  - name: Sync recovery source and device tree
-    run: |
-      mkdir work
-      cd work
+      - name: Sync recovery source and device tree
+        run: |
+          mkdir work
+          cd work
 
-      repo init \
-      -u $MANIFEST \
-      -b $BRANCH \
-      --depth=1
+          repo init \
+          -u $MANIFEST \
+          -b $BRANCH \
+          --depth=1
 
-      repo sync \
-      -c \
-      -j4 \
-      --force-sync \
-      --no-clone-bundle \
-      --no-tags
+          repo sync \
+          -c \
+          -j4 \
+          --force-sync \
+          --no-clone-bundle \
+          --no-tags
 
-      git clone \
-      --depth=1 \
-      $DT_LINK \
-      $DT_PATH
+          git clone \
+          --depth=1 \
+          $DT_LINK \
+          $DT_PATH
 
-  - name: Build
-    run: |
-      cd work
+      - name: Build
+        run: |
+          cd work
 
-      source build/envsetup.sh
+          source build/envsetup.sh
 
-      export ALLOW_MISSING_DEPENDENCIES=true
+          export ALLOW_MISSING_DEPENDENCIES=true
 
-      lunch omni_TECNO-KH6-eng
+          lunch omni_TECNO-KH6-eng
 
-      mka recoveryimage
+          mka recoveryimage
 
-  - name: Upload recovery
-    uses: actions/upload-artifact@v4
+      - name: Upload recovery
+        uses: actions/upload-artifact@v4
 
-    with:
-      name: TWRP-TECNO-KH6
-
-      path: |
-        work/out/target/product/**/recovery.img
+        with:
+          name: TWRP-TECNO-KH6
+          path: |
+            work/out/target/product/**/recovery.img
