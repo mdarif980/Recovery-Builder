@@ -4,18 +4,15 @@ on:
   workflow_dispatch:
 
 env:
-  MANIFEST: "https://github.com/minimal-manifest-twrp/platform_manifest_twrp_aosp"
-  BRANCH: "twrp-12.1"
+  MANIFEST: https://github.com/minimal-manifest-twrp/platform_manifest_twrp_aosp
+  BRANCH: twrp-12.1
 
-  DEVICE: "TECNO-KH6"
+  DEVICE: TECNO-KH6
+  DT_LINK: https://github.com/twrpdtgen/android_device_tecno_TECNO-KH6
+  DT_PATH: device/tecno/TECNO-KH6
 
-  DT_LINK: "https://github.com/twrpdtgen/android_device_tecno_TECNO-KH6"
-
-  DT_PATH: "device/tecno/TECNO-KH6"
-
-  TARGET: "recoveryimage"
-
-  TZ: "Asia/Dhaka"
+  TARGET: bootimage
+  TZ: Asia/Dhaka
 
 jobs:
   build:
@@ -26,63 +23,45 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Initializing environment
+      - name: Set timezone
+        run: sudo timedatectl set-timezone $TZ
+
+      - name: Install dependencies
         run: |
           sudo apt-get update
-
           sudo apt-get install -y \
-          bc \
-          build-essential \
-          zip \
-          curl \
-          git \
-          python3 \
-          wget
+            bc build-essential zip curl git python3 wget \
+            libssl-dev flex bison gperf \
+            libxml2-utils xsltproc unzip
 
           sudo curl --create-dirs -L \
-          -o /usr/local/bin/repo \
-          https://storage.googleapis.com/git-repo-downloads/repo
+            -o /usr/local/bin/repo \
+            https://storage.googleapis.com/git-repo-downloads/repo
 
           sudo chmod a+rx /usr/local/bin/repo
 
-      - name: Sync recovery source and device tree
+      - name: Sync source
         run: |
           mkdir work
           cd work
 
-          repo init \
-          -u $MANIFEST \
-          -b $BRANCH \
-          --depth=1
+          repo init -u $MANIFEST -b $BRANCH --depth=1
+          repo sync -c -j$(nproc) --force-sync --no-clone-bundle --no-tags
 
-          repo sync \
-          -c \
-          -j4 \
-          --force-sync \
-          --no-clone-bundle \
-          --no-tags
+          git clone --depth=1 $DT_LINK $DT_PATH
 
-          git clone \
-          --depth=1 \
-          $DT_LINK \
-          $DT_PATH
-
-      - name: Build
+      - name: Build Recovery (Boot Image for A/B)
         run: |
           cd work
-
           source build/envsetup.sh
 
           export ALLOW_MISSING_DEPENDENCIES=true
 
           lunch omni_TECNO-KH6-eng
+          make -j$(nproc) bootimage
 
-          mka recoveryimage
-
-      - name: Upload recovery
+      - name: Upload boot image
         uses: actions/upload-artifact@v4
-
         with:
           name: TWRP-TECNO-KH6
-          path: 
-             work/out/target/product/TECNO-KH6/recovery.img
+          path: work/out/target/product/TECNO-KH6/boot.img
