@@ -8,7 +8,7 @@ env:
   BRANCH: twrp-12.1
 
   DEVICE: TECNO_KH6
-  DT_LINK: https://github.com/twrpdtgen/android_device_tecno_TECNO-KH6
+  DT_LINK: https://github.com/mdarif980/android_device_tecno_TECNO-KH6
   DT_PATH: device/tecno/TECNO-KH6
 
   TARGET: bootimage
