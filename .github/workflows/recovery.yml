@@ -7,7 +7,7 @@ env:
   MANIFEST: https://github.com/minimal-manifest-twrp/platform_manifest_twrp_aosp
   BRANCH: twrp-12.1
 
-  DEVICE: TECNO-KH6
+  DEVICE: TECNO_KH6
   DT_LINK: https://github.com/twrpdtgen/android_device_tecno_TECNO-KH6
   DT_PATH: device/tecno/TECNO-KH6
 
@@ -19,7 +19,6 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -49,8 +48,6 @@ jobs:
           repo sync -c -j$(nproc) --force-sync --no-clone-bundle --no-tags
 
           git clone --depth=1 $DT_LINK $DT_PATH
-          
-          # Remove vendorsetup.sh - not needed for A/B devices, causes build failure
           rm -f $DT_PATH/vendorsetup.sh || true
 
       - name: Build Recovery (Boot Image for A/B)
@@ -60,11 +57,11 @@ jobs:
 
           export ALLOW_MISSING_DEPENDENCIES=true
 
-          lunch omni_TECNO-KH6-eng
+          lunch omni_TECNO_KH6-eng
           make -j$(nproc) bootimage
 
       - name: Upload boot image
         uses: actions/upload-artifact@v4
         with:
           name: TWRP-TECNO-KH6
-          path: work/out/target/product/TECNO-KH6/boot.img
+          path: work/out/target/product/TECNO_KH6/boot.img
