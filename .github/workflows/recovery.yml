@@ -49,6 +49,9 @@ jobs:
           repo sync -c -j$(nproc) --force-sync --no-clone-bundle --no-tags
 
           git clone --depth=1 $DT_LINK $DT_PATH
+          
+          # Remove vendorsetup.sh - not needed for A/B devices, causes build failure
+          rm -f $DT_PATH/vendorsetup.sh || true
 
       - name: Build Recovery (Boot Image for A/B)
         run: |
